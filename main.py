@@ -4,10 +4,13 @@ from flask import session, request
 import uuid
 
 import os
+from dotenv import dotenv_values
 from collections import defaultdict
 
+config = dotenv_values(".env")
+
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get("APP_SECRET_KEY")
+app.config["SECRET_KEY"] = config["APP_SECRET_KEY"] or os.environ.get("APP_SECRET_KEY")
 
 socketio = SocketIO(app)
 

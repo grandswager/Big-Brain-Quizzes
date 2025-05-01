@@ -2,7 +2,10 @@ from flask import render_template, request, redirect, session
 from main import app
 
 import os
-ADMIN_PIN = os.environ.get("ADMIN_PIN")
+from dotenv import dotenv_values
+
+config = dotenv_values(".env")
+ADMIN_PIN = config["ADMIN_PIN"] or os.environ.get("ADMIN_PIN")
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -10,6 +13,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    global ADMIN_PIN
     if request.method == 'POST':
         pin = request.form.get('pin')
         if pin == ADMIN_PIN:
