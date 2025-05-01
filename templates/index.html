@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Player</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="mb-4 text-center" id="question-title">Waiting for question...</h1>
+        <div id="choices" class="d-grid gap-2 mb-3"></div>
+        <p id="result" class="fs-5 text-center"></p>
+
+
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <h3>Class Leaderboard</h3>
+                <ol id="leaderboard" class="list-group list-group-numbered mt-3">Waiting for results...</ol>
+            </div>
+            <div class="col-md-6">
+                <h3>Answer Summary</h3>
+                <ul id="answer-summary" class="list-group mt-3"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let playerName = prompt("Enter your name:");
+        if (!playerName) playerName = "Anonymous";
+
+        const socket = io();
+        socket.emit('register_name', playerName);
+
+        socket.on("connect", () => {
+            console.log("Player connected to socket server!");
+            socket.send("A player has connected to the server.");
+        });
+
+        let correctAnswer = null;
+        let answerChosen = null;
+
+        socket.on('broadcast_question', data => {
+            correctAnswer = data.correct;
+            document.getElementById('question-title').innerText = data.question;
+
+            const choicesDiv = document.getElementById('choices');
+            choicesDiv.innerHTML = '';
+
+            for (let key in data.choices) {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-outline-primary me-2 mb-2';
+                btn.textContent = `${key}: ${data.choices[key]}`;
+
+                btn.onclick = () => {
+                    socket.emit('player_answer', key);
+                    answerChosen = key;
+                    document.getElementById('result').innerText = "Answer submitted: " + key;
+
+                    document.querySelectorAll('#choices button').forEach(b => b.disabled = true);
+                };
+
+                choicesDiv.appendChild(btn);
+            }
+
+            document.getElementById('result').innerText = "";
+        });
+
+        socket.on('answer_summary', data => {
+            const resultText = document.getElementById('result');
+
+            let status = "";
+            if (data.your_answer === data.correct) {
+                status += `✅ Correct!`;
+            } else if (data.your_answer) {
+                status += `❌ Wrong.`;
+            } else {
+                status += `❌ No answer.`;
+            }
+
+            status += ` You earned ${data.your_points} point${data.your_points === 1 ? "" : "s"}.<br>`;
+            status += `Correct answer: ${data.correct}`;
+            resultText.innerHTML = status;
+
+            const summaryList = document.getElementById('answer-summary');
+            summaryList.innerHTML = '';
+            ['A', 'B', 'C', 'D'].forEach(choice => {
+                const count = data.answer_counts[choice] || 0;
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `<span>${choice}</span><span class="badge bg-info">${count} vote${count !== 1 ? 's' : ''}</span>`;
+                if (choice === data.correct) {
+                    li.classList.add('list-group-item-success');
+                }
+                summaryList.appendChild(li);
+            });
+        });
+
+        socket.on('leaderboard_update', data => {
+            const lb = document.getElementById('leaderboard');
+            lb.innerHTML = '';
+
+            data.leaderboard.forEach(entry => {
+                if (entry.name !== "Host") {
+                    const li = document.createElement('li');
+                    li.className = "list-group-item d-flex justify-content-between align-items-center";
+                    li.innerHTML = `<span>${entry.name}</span><span class="badge bg-secondary">${entry.score} pts</span>`;
+                    lb.appendChild(li);
+                }
+            });
+
+            const resultText = document.getElementById('result');
+            resultText.innerHTML += `<br><em>${data.percent_correct}% of the class got it right!</em>`;
+        });
+
+        socket.on('clear_question_ack', () => {
+            document.getElementById('question-title').innerText = "Waiting for question...";
+            document.getElementById('choices').innerHTML = '';
+            document.getElementById('result').innerText = '';
+        });
+
+        socket.on('leaderboard_reset', () => {
+            document.getElementById('leaderboard').innerHTML = '';
+        });
+    </script>
+</body>
+</html>

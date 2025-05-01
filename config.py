@@ -1,0 +1,3 @@
+SECRET_KEY = 'd2i3ydgt8s6i2yvegfg2t8f36eiuwv'
+SQLALCHEMY_DATABASE_URI = 'sqlite:///quiz.db'
+SQLALCHEMY_TRACK_MODIFICATIONS = False
