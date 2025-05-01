@@ -137,4 +137,4 @@ def handle_reset_leaderboard():
 from routes import *
 
 if __name__ == '__main__':
-    socketio.run(app, debug=False, host='0.0.0.0', port=4010)
+    socketio.run(app, debug=False, allow_unsafe_werkzeug=True, host='0.0.0.0', port=4010)
