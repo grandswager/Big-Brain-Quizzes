@@ -6,8 +6,9 @@ from dotenv import dotenv_values
 
 config = dotenv_values(".env")
 try:
-    ADMIN_PIN = config["ADMIN_PIN"] or os.environ.get("ADMIN_PIN")
+    ADMIN_PIN = config["ADMIN_PIN"]
 except KeyError:
+    ADMIN_PIN = os.environ.get("ADMIN_PIN")
     print(".env file not found, using os.environ")
 
 @app.route("/", methods=['GET', 'POST'])

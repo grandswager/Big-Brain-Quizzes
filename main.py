@@ -12,6 +12,11 @@ try:
     app.config["SECRET_KEY"] = config["APP_SECRET_KEY"] or os.environ.get("APP_SECRET_KEY")
 except KeyError:
     print(".env file not found, using os.environ")
+try:
+    app.config["SECRET_KEY"] = config["APP_SECRET_KEY"]
+except KeyError:
+    app.config["SECRET_KEY"] = os.environ.get("APP_SECRET_KEY")
+    print(".env file not found, using os.environ")
 
 from events import *
 from routes import *
