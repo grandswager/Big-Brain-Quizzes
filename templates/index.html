@@ -7,32 +7,42 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-dark bg-primary mb-0">
-        <div class="container-fluid flex-column align-items-start">
-            <span class="navbar-brand mb-0 h1">Big Brain Quizzes</span>
-            <small class="text-light text-opacity-75">a project by Exemplary Studios</small>
+    <nav class="navbar navbar-dark bg-primary mb-4">
+        <div class="container-fluid">
+            <div class="d-flex flex-column">
+                <span class="navbar-brand mb-0 h1">Big Brain Incorporated</span>
+                <small class="text-light text-opacity-75">a project by Exemplary Studios</small>
+            </div>
+            <span class="text-light" id="playerNameDisplay"></span>
         </div>
     </nav>
 
     <div class="container py-5">
-        <div id="status-message" class="alert text-center d-none" role="alert"></div>
-        <div id="kick-message" class="alert alert-danger text-center d-none" role="alert"></div>
+        <div id="nameForm" class="text-center">
+            <h2 class="mb-3">Enter Your Name</h2>
+            <input id="nameInput" type="text" class="form-control w-50 mx-auto mb-3" placeholder="Your name (Max 20 characters)" />
+            <button onclick="submitName()" class="btn btn-primary">Start</button>
+        </div>
+  
+        <div id="quizInterface" style="display: none;">
+            <h1 class="mb-4 text-center" id="question-title">Waiting for question...</h1>
+            <div id="choices" class="d-grid gap-2 mb-3"></div>
+            <p id="result" class="fs-5 text-center"></p>
+    
 
-        <h1 class="mb-4 text-center" id="question-title">Waiting for question...</h1>
-        <div id="choices" class="d-grid gap-2 mb-3"></div>
-        <p id="result" class="fs-5 text-center"></p>
-
-        <div class="row mt-5">
-            <div class="col-md-6">
-                <h3>Leaderboard</h3>
-                <ol id="leaderboard" class="list-group list-group-numbered mt-3">Waiting for results...</ol>
-            </div>
-            <div class="col-md-6">
-                <h3>Answer Summary</h3>
-                <ul id="answer-summary" class="list-group mt-3">Waiting for results...</ul>
+            <div class="row mt-5">
+                <div class="col-md-6">
+                    <h3>Leaderboard</h3>
+                    <ol id="leaderboard" class="list-group list-group-numbered mt-3">Waiting for results...</ol>
+                </div>
+                <div class="col-md-6">
+                    <h3>Answer Summary</h3>
+                    <ul id="answer-summary" class="list-group mt-3">Waiting for results...</ul>
+                </div>
             </div>
         </div>
     </div>
+
 
     <script>
         function showMessage(type, text) {
@@ -46,11 +56,21 @@
             }, 5000);
         }
 
-        let playerName = prompt("Enter your name:");
-        if (!playerName) playerName = "Anonymous";
+        let playerName = null;
 
         const socket = io();
-        socket.emit('register_name', playerName);
+
+        function submitName() {
+            const input = document.getElementById("nameInput").value.trim();
+            if (!input) return;
+
+            playerName = input;
+            socket.emit('register_name', playerName);
+
+            document.getElementById("playerNameDisplay").innerText = playerName;
+            document.getElementById("nameForm").style.display = "none";
+            document.getElementById("quizInterface").style.display = "block";
+        }
 
         socket.on("connect", () => {
             console.log("Player connected to socket server!");
