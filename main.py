@@ -10,7 +10,10 @@ from collections import defaultdict
 config = dotenv_values(".env")
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = config["APP_SECRET_KEY"] or os.environ.get("APP_SECRET_KEY")
+try:
+    app.config["SECRET_KEY"] = config["APP_SECRET_KEY"] or os.environ.get("APP_SECRET_KEY")
+except KeyError:
+    print(".env file not found, using os.environ")
 
 socketio = SocketIO(app)
 

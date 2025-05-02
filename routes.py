@@ -5,7 +5,10 @@ import os
 from dotenv import dotenv_values
 
 config = dotenv_values(".env")
-ADMIN_PIN = config["ADMIN_PIN"] or os.environ.get("ADMIN_PIN")
+try:
+    ADMIN_PIN = config["ADMIN_PIN"] or os.environ.get("ADMIN_PIN")
+except KeyError:
+    print(".env file not found, using os.environ")
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
