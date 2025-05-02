@@ -7,16 +7,20 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body class="bg-light">
-    <div class="container py-5">
-        <!-- <h3 class="text-center">Big Brain Quizzes <small class="text-body-secondary">by Big Brain Incoporated&trade;, a subsidiary of Exemplary Studios</small></h3>
+    <nav class="navbar navbar-dark bg-primary mb-0">
+        <div class="container-fluid flex-column align-items-start">
+            <span class="navbar-brand mb-0 h1">Big Brain Incorporated</span>
+            <small class="text-light text-opacity-75">a project by Exemplary Studios</small>
+        </div>
+    </nav>
 
-        <br>
-        <br> -->
+    <div class="container py-5">
+        <div id="status-message" class="alert text-center d-none" role="alert"></div>
+        <div id="kick-message" class="alert alert-danger text-center d-none" role="alert"></div>
 
         <h1 class="mb-4 text-center" id="question-title">Waiting for question...</h1>
         <div id="choices" class="d-grid gap-2 mb-3"></div>
         <p id="result" class="fs-5 text-center"></p>
-
 
         <div class="row mt-5">
             <div class="col-md-6">
@@ -31,6 +35,17 @@
     </div>
 
     <script>
+        function showMessage(type, text) {
+            const msgDiv = document.getElementById('status-message');
+            msgDiv.className = `alert alert-${type} text-center`;
+            msgDiv.textContent = text;
+            msgDiv.classList.remove('d-none');
+
+            setTimeout(() => {
+                msgDiv.classList.add('d-none');
+            }, 5000);
+        }
+
         let playerName = prompt("Enter your name:");
         if (!playerName) playerName = "Anonymous";
 
@@ -63,7 +78,7 @@
                 btn.onclick = () => {
                     socket.emit('player_answer', key);
                     answerChosen = key;
-                    document.getElementById('result').innerText = "Answer submitted: " + key;
+                    showMessage('info', `📩 Answer submitted: ${key}`);
 
                     document.querySelectorAll('#choices button').forEach(b => b.disabled = true);
                 };
@@ -72,6 +87,15 @@
             }
 
             document.getElementById('result').innerText = "";
+        });
+
+        socket.on('kick_notice', () => {
+            const msg = document.getElementById('kick-message');
+            msg.textContent = "🚫 You have been kicked by the host.";
+            msg.classList.remove('d-none');
+
+            document.querySelectorAll('#choices button').forEach(b => b.disabled = true);
+            socket.disconnect();
         });
 
         socket.on('answer_summary', data => {
@@ -125,11 +149,13 @@
             document.getElementById('question-title').innerText = "Waiting for question...";
             document.getElementById('choices').innerHTML = '';
             document.getElementById('result').innerText = '';
-            document.getElementById('answer-summary').innerHTML = 'Waiting for results...';s
+            document.getElementById('answer-summary').innerHTML = 'Waiting for results...';
+            showMessage('warning', "The question has been cleared.");
         });
 
         socket.on('leaderboard_reset', () => {
             document.getElementById('leaderboard').innerHTML = 'Waiting for results...';
+            showMessage('warning', "Leaderboard has been reset.");
         });
     </script>
 </body>
