@@ -23,7 +23,7 @@ def on_connect():
 @socketio.on('register_name')
 def handle_register_name(name):
     sid = request.sid
-    player_names[sid] = name
+    player_names[sid] = name[0:20]
     player_scores[sid] = 0
 
     if current_question:
