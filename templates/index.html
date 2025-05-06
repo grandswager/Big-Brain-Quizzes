@@ -151,15 +151,25 @@
             }
 
             document.querySelectorAll('#choices button').forEach(btn => {
-                const choice = btn;
-                console.log(choice, data.correct, data.your_answer)
-                if (data.correct === data.your_answer) {
-                    console.log("WOWOWOWO")
-                    btn.classList.add("correct");
+                const choice = btn.innerText;
+                if (data.your_answer === data.correct) {
+                    if (choice.includes(data.correct + ":")) {
+                        btn.classList.add("correct");
+                    }
+                } else if (data.your_answer) {
+                    if (choice.includes(data.your_answer + ":")) {
+                        btn.classList.add("incorrect");
+                    } else if (choice.includes(data.correct + ":")) {
+                        btn.classList.add("correct");
+                    }
                 } else {
-                    console.log("askjdahdk")
-                    btn.classList.add("incorrect");
+                    if (choice.includes(data.correct + ":")) {
+                        btn.classList.add("correct");
+                    } else {
+                        btn.classList.add("incorrect");
+                    }
                 }
+
                 btn.disabled = true;
             });
 
