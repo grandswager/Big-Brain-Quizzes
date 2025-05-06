@@ -46,9 +46,10 @@ def handle_get_active_players():
 @socketio.on('kick_player')
 def handle_kick_player(data):
     sid_to_kick = data.get('sid')
+    reason = data.get('reason', 'You have been kicked by the host.')
     if sid_to_kick in player_names:
-        print(f"Kicking player: {player_names[sid_to_kick]}")
-        socketio.emit('kick_notice', {}, to=sid_to_kick)
+        print(f"Kicking player: {player_names[sid_to_kick]} - Reason: {reason}")
+        socketio.emit('kick_notice', {'reason': reason}, to=sid_to_kick)
         disconnect(sid_to_kick)
 
 @socketio.on("message")

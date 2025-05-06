@@ -10,7 +10,7 @@
     <nav class="navbar navbar-dark bg-primary mb-4">
         <div class="container-fluid">
             <div class="d-flex flex-column">
-                <span class="navbar-brand mb-0 h1">Big Brain Incorporated</span>
+                <span class="navbar-brand mb-0 h1">Big Brain&trade; Quizzes</span>
                 <small class="text-light text-opacity-75">a project by Exemplary Studios</small>
             </div>
             <span class="text-light" id="playerNameDisplay"></span>
@@ -18,9 +18,12 @@
     </nav>
 
     <div class="container py-5">
+        <div id="status-message" class="alert text-center d-none" role="alert"></div>
+        <div id="kick-message" class="alert alert-danger text-center d-none" role="alert"></div>
+
         <div id="nameForm" class="text-center">
             <h2 class="mb-3">Enter Your Name</h2>
-            <input id="nameInput" type="text" class="form-control w-50 mx-auto mb-3" placeholder="Your name (Max 20 characters)" />
+            <input id="nameInput" type="text" class="form-control w-50 mx-auto mb-3" placeholder="Your name (Max 20 characters)" autocomplete="off" />
             <button onclick="submitName()" class="btn btn-primary">Start</button>
         </div>
   
@@ -109,14 +112,15 @@
             document.getElementById('result').innerText = "";
         });
 
-        socket.on('kick_notice', () => {
+        socket.on('kick_notice', (data) => {
             const msg = document.getElementById('kick-message');
-            msg.textContent = "🚫 You have been kicked by the host.";
+            msg.textContent = `🚫 ${data.reason || "You have been kicked by the host."}`;
             msg.classList.remove('d-none');
 
             document.querySelectorAll('#choices button').forEach(b => b.disabled = true);
             socket.disconnect();
         });
+
 
         socket.on('answer_summary', data => {
             const resultText = document.getElementById('result');

@@ -9,7 +9,7 @@
     <nav class="navbar navbar-dark bg-primary mb-4">
         <div class="container-fluid">
             <div class="d-flex flex-column">
-                <span class="navbar-brand mb-0 h1">Big Brain Incorporated</span>
+                <span class="navbar-brand mb-0 h1">Big Brain&trade; Quizzes</span>
                 <small class="text-light text-opacity-75">a project by Exemplary Studios</small>
             </div>
             <span class="text-light" id="playerNameDisplay">Host</span>
@@ -98,7 +98,8 @@
 
         function kickPlayer(sid) {
             if (confirm("Are you sure you want to kick this player?")) {
-                socket.emit('kick_player', { sid: sid });
+                reason = prompt("Enter reason for kick (leave empty for default message):");
+                socket.emit('kick_player', { sid: sid, reason: reason });
                 updateActivePlayers();
             }
         }
